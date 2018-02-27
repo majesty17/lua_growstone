@@ -4,6 +4,8 @@
 -- info    for mi5 :1920*1080
 
 require "TSLib"
+local ts = require("ts")
+
 
 --做一些初始化
 init("0", 0);			--指定坐标系，横屏home右
@@ -16,7 +18,6 @@ rubyIntval=110;
 
 lvpic={"lv07"}
 faces={"boy","girl","cike","fox","blue","rabbit"}
-
 
 
 --zone1:动作定义
@@ -40,14 +41,19 @@ function handleAnti()
 		runApp("net.supercat.stone");
 		mSleep(45000)
 		--关闭xx，调自动模式，点加号
-		click(914,355);
+		os.execute("input keyevent 4")
+		--tap(914,355);
+		--mSleep(2000)
+		--tap(938,713);
+		
 		mSleep(2000)
-		click(938,713);
+		
+		tap(871,1686);
 		mSleep(2000)
-		click(871,1686);
+		tap(986,1831);
 		mSleep(2000)
-		click(986,1831);
-		mSleep(2000)
+		--重置时间
+		glLastRubyTime=0;
 		--继续
 	end
 
@@ -61,18 +67,19 @@ function capScreen()
 	-- 右下角顶点坐标最大为 (宽度最大值-1, 高度最大值-1)
 	snapshot(current_time..".png", 0, 0, w-1, h-1); 
 end
---抓宝石(todo)
+
+--抓宝石
 function getRuby()
 	--判断时间到没有
 	nowtime=os.time();
 	if nowtime - glLastRubyTime > rubyIntval+10 then
 		sys_log("开始点宝石");
 		mSleep(600); --可能点到分解
-		click(74,1206);
+		tap(74,1206);
 		mSleep(400);
-		click(287,1278);
+		tap(287,1278);
 		mSleep(400);
-		click(8,356);
+		tap(8,356);
 		mSleep(200);
 		glLastRubyTime=nowtime;
 	end
@@ -123,45 +130,10 @@ function makeARealMerge()
 	x2 = (to % 8) * 112 + 95
 	y1 = math.floor(from / 8) * 112 + 1412;
 	y2 = math.floor(to / 8) * 112 + 1412;
-	mySwipe(x1,y1,x2,y2);
+	--mySwipe(x1,y1,x2,y2);
+	moveTo(x1,y1,x2,y2,25);
 end
 
---平滑swip
-function mySwipe(x1,y1,x2,y2)
-	-- x move
-	touchDown(x1, y1)
-	if x2~=x1 then
-		step_x=28;--x2>x1?112:-112;
-		if x2<x1 then
-			step_x=-28;
-		end
-		
-		for i=x1,x2,step_x do
-			touchMove(i, y1);
-		end
-	end
-	-- y move
-	if y2~=y1 then
-		step_y=28;--y2>y1?116:-116;
-		if y2<y1 then
-			step_y=-28;
-		end
-		
-		for i=y1,y2,step_y do
-			touchMove(x2, i);
-		end
-	end
-	touchUp(x2, y2);
-end
-
---点击
-function click(x, y)
-    touchDown(x, y);
-    mSleep(30);
-    touchMove(x, y); -- 安卓部分机型单点不生效的情况下可以加上此句
-    touchUp(x, y);
-	mSleep(300);
-end
 
 
 --目标face（抓图版）
@@ -181,19 +153,15 @@ end
 function getAFace()
 	
 	good=0
-	sumr=0
-	sumg=0
-	sumb=0
+	sum=0
     keepScreen(true)
 
 	for x=455,641,3 do
 		for y=1045,1245,3 do
-			r,g,b = getColorRGB(x, y); 
-			if r~=64 and g~=48 and b~=36 then
+			cor = getColor(x, y); 
+			if cor~=0x403024 then
 				good=good+1
-				sumr=sumr+r
-				sumg=sumg+g
-				sumb=sumb+b
+				sum=sum+cor
 			end
 			
 			
@@ -201,7 +169,36 @@ function getAFace()
 		
 	end
 	keepScreen(false)
-	sys_log("avg is "..(sumr/good)..","..(sumg/good)..","..(sumb/good))
+
+	if sum==20705041656 or sum==9543954167 or sum==9479655760 or 
+		sum ==9176557265 or sum==8999620849 or sum== 9577416402 or
+		sum==8724910727 or sum==20719460996 or sum==8838790209 then
+		sys_log((sum).." it is boy")
+	elseif sum==9232212575 or sum==9374098665 or sum==9350024043 or sum==9261678718 or
+		sum==8921764002 or sum==8685123308 or sum==9306178084 or sum==9331554048 or 
+		sum==9398802640 then
+		sys_log((sum).." it is girl")
+		
+	elseif sum==8457483222 or sum==8622148581 or sum==7619538596 or sum==8903992657 or
+		sum==7901983244 or sum==8268905466 or sum==8830403066 or sum==8181222562 then
+		sys_log((sum).." it is cike_boy")
+	elseif sum==5292358690 or sum==5282139339 or sum==5669592430 or sum==5086229205 
+		or sum==5414907061 or sum==5074727354 or sum==5244652514 then
+		sys_log((sum).." it is cike_girl")
+	elseif sum==10478294089 or sum==10538026874 or sum==11020328862 or sum==10842800473 or
+		sum==9879409779 or sum==10605099012 or sum==10297708794 then
+		sys_log((sum).." it is fox")
+	elseif sum==9264716635 or sum==9947053816 or sum==9476133693 or sum==8287978895 or sum==20702301819 or
+		sum==8436471063 or sum==9422591889 or sum==8953871852 or sum==10048558273 then
+		sys_log((sum).." it is blue")
+	elseif sum==10866869967 or sum==10632429174  or sum==11024825297 or sum==10693058206 or 
+		sum==10344331287 or sum==10792284583 or sum==10363435974 then
+		sys_log((sum).." it is rabbit")
+	else
+		sys_log((sum).." not found")
+	end
+	
+	
 
 end
 
@@ -258,6 +255,7 @@ function dowork(type,extra)
 	if type=="1" then
 		math.randomseed(os.time())
 		while glRunningFlag do
+			sys_log("while")
 			getRuby();
 			handleAnti();
 			makeARealMerge();
@@ -285,12 +283,14 @@ function main()
 	--capScreen();
 	--makeAMerge("lv14.png");
 	--测试区
-
+	--sys_log("=================")
 	--getAFace();
+
+	
+	
 	
 	--弹出主程序面板
 	ret, worktype, extra= show_dialog();
-	--sys_log("对话框输出: "..ret..worktype..extra);
 	if ret==1 then
 		--根据不同的动作，执行
 		--设定上次清理时间为当前时间
