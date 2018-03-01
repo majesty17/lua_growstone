@@ -6,7 +6,6 @@
 require "TSLib"
 local ts = require("ts")
 
-
 --做一些初始化
 init("0", 0);			--指定坐标系，横屏home右
 luaExitIfCall(true);
@@ -16,7 +15,6 @@ glRunningFlag=true;
 glLastRubyTime=0;
 rubyIntval=110;
 
-lvpic={"lv07"}
 faces={"boy","girl","cike","fox","blue","rabbit"}
 
 
@@ -25,35 +23,32 @@ faces={"boy","girl","cike","fox","blue","rabbit"}
 --反作弊测试(TODO)
 function handleAnti()
 	-- body
-	if (isColor(  76,  449, 0x947850, 85) and 
-		isColor(  47,  456, 0xdcc094, 85) and 
-		isColor(  44,  485, 0x947850, 85) and 
-		isColor(  80,  485, 0x36261a, 85)) then
+	if (isColor(  59,  418, 0x83603b, 85) and 
+		isColor(  72,  435, 0x36261a, 85) and 
+		isColor( 104,  420, 0x270f03, 85))  then
 		print("出现了。。。")
 		--截图
 		mSleep(800);
-		capScreen();
-		mSleep(1000);
+		--capScreen();
+		--mSleep(1000);
 		--关闭程序
 		closeApp("net.supercat.stone");
-		mSleep(3000)
+		mSleep(2500)
 		--打开程序
 		runApp("net.supercat.stone");
-		mSleep(45000)
-		--关闭xx，调自动模式，点加号
+		mSleep(37000)
+		--关闭xx
 		os.execute("input keyevent 4")
 		--tap(914,355);
-		--mSleep(2000)
-		--tap(938,713);
 		
-		mSleep(2000)
 		
-		tap(871,1686);
+		--点加号
 		mSleep(2000)
-		tap(986,1831);
-		mSleep(2000)
+		tap(993,1823);
+		mSleep(1000)
+
 		--重置时间
-		glLastRubyTime=0;
+		--glLastRubyTime=0;
 		--继续
 	end
 
@@ -85,53 +80,91 @@ function getRuby()
 	end
 end
 
---对各个lv的石头做合并
-function doMerge()
-	for i=7,21 do
-		name=string.format("lv%02d.png",i)
-		makeAMerge(name)
-		nLog(name)
-	end
-end
---做一次合并
-function makeAMerge(picname)
-	x, y = findImageInRegionFuzzy(picname, 80, 11, 546, 420, 746, 0);
-	if x ~= -1 and y ~= -1 then  --找第一个图成功
-		x1, y1=findImageInRegionFuzzy(picname, 80, x+40, 546, 420, 746, 0);
-		if x1 ~= -1 and y1 ~= -1 then
-			touchDown(x,y)
-			mSleep(100)
-			touchMove(x1, y1)
-			mSleep(100)
-			touchUp(x1, y1)
-		else
-			x1, y1=findImageInRegionFuzzy(picname, 80, 11, y+40, 420, 746, 0);
-			if x1 ~= -1 and y1 ~= -1 then
-				touchDown(x,y)
-				mSleep(100)
-				touchMove(x1, y1)
-				mSleep(100)
-				touchUp(x1, y1)
-			end
+
+--做一次merge（找点版）
+function makeMergePoint()
+	keepScreen(true)
+	map={{}, {}, {}, {}} 
+	for i=1,4 do
+		for j=1,8 do
+			map[i][j]=getLvl(i,j)
+			sys_log(i..","..j..":"..map[i][j])
 		end
 		
 	end
-end
+	keepScreen(false)
+	--开始合并
+	--保存是否处理过的
+	done={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+	--开始合并
+	for i=1,31 do
+		for j=i+1,32 do
+			if map[math.floor((i-1)/8)+1][(i-1)%8+1]==map[math.floor((j-1)/8)+1][(j-1)%8+1] 
+			and map[math.floor((i-1)/8)+1][(i-1)%8+1]~=0 and done[i]==0 and done[j]==0 then
+				done[i]=1
+				done[j]=1
+				x1 = ((i-1) % 8) * 112 + 95
+				x2 = ((j-1) % 8) * 112 + 95
+				y1 = math.floor((i-1) / 8) * 112 + 1412;
+				y2 = math.floor((j-1) / 8) * 112 + 1412;
 
---做一次随机merge
-function makeARealMerge()
-	-- body
-	from = math.random(0,31)
-	to = math.random(0,31)
-	if from==to then
-		return
+				moveTo(x1,y1,x2,y2,35);
+			end
+			
+		end
 	end
-	x1 = (from % 8) * 112 + 95
-	x2 = (to % 8) * 112 + 95
-	y1 = math.floor(from / 8) * 112 + 1412;
-	y2 = math.floor(to / 8) * 112 + 1412;
-	--mySwipe(x1,y1,x2,y2);
-	moveTo(x1,y1,x2,y2,25);
+	
+	
+	
+end
+--找这个位置的lv(x,y)in(1,1)~(4,8)
+function getLvl(x,y)
+	-- body
+	x1=(y-1)*112.5+46
+	y1=(x-1)*112.5+1369
+	x2=x1+95
+	y2=y1+85
+	
+	
+	--5 unique
+	x0,y0= findColorInRegionFuzzy(0xdd9500, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 15;end
+	
+	
+	x0,y0= findColorInRegionFuzzy(0xfef99d, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 17;end
+	x0,y0= findColorInRegionFuzzy(0xa4c6d3, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 18;end
+	x0,y0= findColorInRegionFuzzy(0x2be2ff, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 19;end
+	x0,y0= findColorInRegionFuzzy(0x203a8c, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 20;end
+	x0,y0= findColorInRegionFuzzy(0x64111d, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 21;end
+	x0,y0= findColorInRegionFuzzy(0xea6b33, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 22;end
+	x0,y0= findColorInRegionFuzzy(0x9abac6, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 23;end
+	x0,y0= findColorInRegionFuzzy(0x245f58, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 23;end
+	
+	x0,y0= findColorInRegionFuzzy(0x122e22, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 8;end
+	x0,y0= findColorInRegionFuzzy(0x6abe30, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 9;end
+	x0,y0= findColorInRegionFuzzy(0x0fb0fd, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 10;end
+	x0,y0= findColorInRegionFuzzy(0xd90000, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 11;end
+	x0,y0= findColorInRegionFuzzy(0xa85c3c, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 12;end
+	x0,y0= findColorInRegionFuzzy(0x5a5a5a, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 13;end
+	x0,y0= findColorInRegionFuzzy(0xc66518, 100, x1, y1, x2, y2); 
+	if x0>-1 then return 14;end
+	
+	
+	return 0;
 end
 
 
@@ -146,7 +179,6 @@ function getFace()
 			return key
 		end
 	end
-	
 	return -1
 end
 --目标face (分析点版)
@@ -197,13 +229,25 @@ function getAFace()
 	else
 		sys_log((sum).." not found")
 	end
-	
-	
+end
 
+
+--测试不同石头的特征颜色
+function testAll(color)
+	for i=0,2 do
+		for j=0,6 do
+			x0=j*125+113
+			y0=i*172+1211
+			x1=x0+95
+			y1=y0+95
+			xx,yy= findColorInRegionFuzzy(color, 100, x0, y0, x1, y1); 
+			sys_log((i*7+j+8)..":"..xx)
+		end
+	end
 end
 
 --zone2:状态判断
-
+--------------------------------------------------------------------------------------------
 --zone3:系统杂项
 
 --日志
@@ -230,7 +274,7 @@ function show_dialog()
 		views = {
 			{
 				["type"] = "RadioGroup",
-				["list"] = "4排自动合成(不可用),自动随机合石头模式,自动刷地牢模式(不可用),",
+				["list"] = "4排自动合成,自动刷地牢(不可用),",
 				["select"] = "1",
 			},
 		}
@@ -245,21 +289,16 @@ end
 function dowork(type,extra)
 	sys_log("开始挂机，挂机模式:"..type);
 	glRunningFlag=true;
+
 	if type=="0" then
-		while glRunningFlag do
-			handleAnti();
-			doMerge();
-			mSleep(5000);
-		end
-	end
-	if type=="1" then
 		math.randomseed(os.time())
 		while glRunningFlag do
 			sys_log("while")
 			getRuby();
 			handleAnti();
-			makeARealMerge();
-			mSleep(100);
+			--makeARealMerge();
+			makeMergePoint();
+			mSleep(5000);
 		end
 	end
 
@@ -288,9 +327,10 @@ function main()
 
 	
 	
-	
+	--testAll(0x245f58)
 	--弹出主程序面板
 	ret, worktype, extra= show_dialog();
+	--handleAnti();
 	if ret==1 then
 		--根据不同的动作，执行
 		--设定上次清理时间为当前时间
