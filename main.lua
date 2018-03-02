@@ -113,10 +113,8 @@ function makeMergePoint()
 			
 		end
 	end
-	
-	
-	
 end
+
 --找这个位置的lv(x,y)in(1,1)~(4,8)
 function getLvl(x,y)
 	-- body
@@ -167,7 +165,21 @@ function getLvl(x,y)
 	return 0;
 end
 
-
+--处理界面异常
+function handleBadUI()
+	-- body
+	--1,右上角叉叉
+	if isColor(901,351,0x6c4020,85) and isColor(920,358,0xd0d0d0,85) and isColor(929,380,0x50280c,85) then
+		tap(925,364)
+	end
+	mSleep(100)
+	--2,右下角加号
+	if isColor(973,1821,0x3d2e23,85) and isColor(991,1837,0xffffff,85) and isColor(1005,1854,0x260f04,85) then
+		tap(988,1836)
+	end
+	
+	--3，处理灰色按钮
+end
 
 --目标face（抓图版）
 function getFace()
@@ -296,7 +308,7 @@ function dowork(type,extra)
 			sys_log("while")
 			getRuby();
 			handleAnti();
-			--makeARealMerge();
+			handleBadUI();
 			makeMergePoint();
 			mSleep(5000);
 		end
@@ -330,7 +342,7 @@ function main()
 	--testAll(0x245f58)
 	--弹出主程序面板
 	ret, worktype, extra= show_dialog();
-	--handleAnti();
+	--handleBadUI()
 	if ret==1 then
 		--根据不同的动作，执行
 		--设定上次清理时间为当前时间
