@@ -70,12 +70,12 @@ function getRuby()
 	if nowtime - glLastRubyTime > rubyIntval+10 then
 		sys_log("开始点宝石");
 		mSleep(600); --可能点到分解
-		tap(74,1206);
-		mSleep(400);
-		tap(287,1278);
-		mSleep(400);
-		tap(8,356);
-		mSleep(200);
+		tap(74,1065);
+		mSleep(700);
+		tap(287,1185);
+		mSleep(700);
+		tap(237,957);
+		mSleep(500);
 		glLastRubyTime=nowtime;
 	end
 end
@@ -144,7 +144,7 @@ function getLvl(x,y)
 	x0,y0= findColorInRegionFuzzy(0x9abac6, 100, x1, y1, x2, y2); 
 	if x0>-1 then return 23;end
 	x0,y0= findColorInRegionFuzzy(0x245f58, 100, x1, y1, x2, y2); 
-	if x0>-1 then return 23;end
+	if x0>-1 then return 24;end
 	
 	x0,y0= findColorInRegionFuzzy(0x122e22, 100, x1, y1, x2, y2); 
 	if x0>-1 then return 8;end
