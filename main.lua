@@ -78,26 +78,24 @@ end
 
 --做一次merge（找点版）
 function makeMergePoint()
+	--拿到所有石头的level
 	keepScreen(true)
 	map={{}, {}, {}, {}} 
 	for i=1,4 do
 		for j=1,8 do
 			map[i][j]=getLvl(i,j)
-			sys_log(i..","..j..":"..map[i][j])
+			--sys_log(i..","..j..":"..map[i][j])
 		end
-		
 	end
 	keepScreen(false)
-	--保存是否处理过的
-	done={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 	--开始合并(TODO:天气控制)
 	for i=1,31 do
 		for j=i+1,32 do
 			--如果两个格子的level一样，并且没有被处理过，则进行合并。
 			if map[math.floor((i-1)/8)+1][(i-1)%8+1]==map[math.floor((j-1)/8)+1][(j-1)%8+1] 
-			and map[math.floor((i-1)/8)+1][(i-1)%8+1]~=0 and done[i]==0 and done[j]==0 then
-				done[i]=1
-				done[j]=1
+			and map[math.floor((i-1)/8)+1][(i-1)%8+1]~=0  then
+				map[math.floor((i-1)/8)+1][(i-1)%8+1]=0
+				map[math.floor((j-1)/8)+1][(j-1)%8+1]=0
 				x1 = ((i-1) % 8) * 112 + 95
 				x2 = ((j-1) % 8) * 112 + 95
 				y1 = math.floor((i-1) / 8) * 112 + 1412;
@@ -151,12 +149,19 @@ function getLvl(x,y)
 	if x0>-1 then return 12;end
 	x0,y0= findColorInRegionFuzzy(0x5a5a5a, 100, x1, y1, x2, y2); 
 	if x0>-1 then return 13;end
+	
+	
 	x0,y0= findColorInRegionFuzzy(0xc66518, 100, x1, y1, x2, y2); 
-	if x0>-1 then return 14;end
-	
-	
+	if x0>-1 then 
+		if 0xffffff==getColor(x1+46, y1+40) then
+			return 16
+		else
+			return 14
+		end
+	end
 	return 0;
 end
+
 
 --处理界面异常
 function handleBadUI()
@@ -164,7 +169,7 @@ function handleBadUI()
 	--1,右上角叉叉
 	multiColTap({{901,351,0x6c4020},{920,358,0xd0d0d0},{929,380,0x50280c}})
 	--2,右下角加号
-	mSleep(200)
+	mSleep(350)
 	multiColTap({{973,1821,0x3d2e23},{991,1837,0xffffff},{1005,1854,0x260f04}})
 	--3，处理灰色按钮
 end
@@ -183,6 +188,7 @@ end
 
 --测试不同石头的特征颜色
 function testAll(color)
+	keepScreen(true)
 	for i=0,2 do
 		for j=0,6 do
 			x0=j*125+113
@@ -193,8 +199,47 @@ function testAll(color)
 			sys_log((i*7+j+8)..":"..xx)
 		end
 	end
-	
+	keepScreen(false)
 end
+
+function testColorTable()
+	keepScreen(true)
+	x0=6*125+113
+	y0=0*172+1211
+	x1=x0+95
+	y1=y0+95
+	last=0
+	for i=x0,x1,3 do
+		for j=y0,y1,3 do
+			co=getColor(i, j)
+			if co~=last then
+				nLog(co)
+			end
+			last=co
+		end
+	end
+		nLog("======================")
+
+	x0=1*125+113
+	y0=1*172+1211
+	x1=x0+95
+	y1=y0+95
+	for i=x0,x1,3 do
+		for j=y0,y1,3 do
+			co=getColor(i, j)
+			if co~=last then
+				nLog(co)
+			end
+			last=co
+		end
+	end
+	keepScreen(false)
+end
+
+
+
+
+
 
 --zone2:状态判断
 --------------------------------------------------------------------------------------------
@@ -239,7 +284,6 @@ function dowork(type,extra)
 	glRunningFlag=true;
 
 	if type=="0" then
-		math.randomseed(os.time())
 		while glRunningFlag do
 			sys_log("while")
 			getRuby();
@@ -251,7 +295,8 @@ function dowork(type,extra)
 	end
 
 	if type=="1" then
-		testAll(0x245f58)
+		sys_log("do nothing")
+		--testAll(0x6abe30)
 	end
 	sys_log("挂机终止!")
 
@@ -271,10 +316,13 @@ function main()
 	sys_log("=================")
 	--getAFace();
 
-	--
+	--testAll(0x245f58)
+	--testColorTable()
+
+	
 	--弹出主程序面板
 	ret, worktype, extra= show_dialog();
-	mSleep(2000)
+
 	if ret==1 then
 		--根据不同的动作，执行
 		--设定上次清理时间为当前时间
