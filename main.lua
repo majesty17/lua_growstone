@@ -36,20 +36,15 @@ function handleAnti()
 		mSleep(2500)
 		--打开程序
 		runApp("net.supercat.stone");
+		
+		
+		--循环判断是否启动好 TODO
 		mSleep(37000)
-		--关闭xx
-		os.execute("input keyevent 4")
-		--tap(914,355);
 		
-		
-		--点加号
-		mSleep(2000)
-		tap(993,1823);
-		mSleep(1000)
+		--后续的事情由handleBadUI()来搞
 
 		--重置时间
-		--glLastRubyTime=0;
-		--继续
+		glLastRubyTime=0;
 	end
 
 end
@@ -93,12 +88,12 @@ function makeMergePoint()
 		
 	end
 	keepScreen(false)
-	--开始合并
 	--保存是否处理过的
 	done={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-	--开始合并
+	--开始合并(TODO:天气控制)
 	for i=1,31 do
 		for j=i+1,32 do
+			--如果两个格子的level一样，并且没有被处理过，则进行合并。
 			if map[math.floor((i-1)/8)+1][(i-1)%8+1]==map[math.floor((j-1)/8)+1][(j-1)%8+1] 
 			and map[math.floor((i-1)/8)+1][(i-1)%8+1]~=0 and done[i]==0 and done[j]==0 then
 				done[i]=1
@@ -123,11 +118,9 @@ function getLvl(x,y)
 	x2=x1+95
 	y2=y1+85
 	
-	
 	--5 unique
 	x0,y0= findColorInRegionFuzzy(0xdd9500, 100, x1, y1, x2, y2); 
 	if x0>-1 then return 15;end
-	
 	
 	x0,y0= findColorInRegionFuzzy(0xfef99d, 100, x1, y1, x2, y2); 
 	if x0>-1 then return 17;end
@@ -169,21 +162,15 @@ end
 function handleBadUI()
 	-- body
 	--1,右上角叉叉
-	if isColor(901,351,0x6c4020,85) and isColor(920,358,0xd0d0d0,85) and isColor(929,380,0x50280c,85) then
-		tap(925,364)
-	end
-	mSleep(100)
+	multiColTap({{901,351,0x6c4020},{920,358,0xd0d0d0},{929,380,0x50280c}})
 	--2,右下角加号
-	if isColor(973,1821,0x3d2e23,85) and isColor(991,1837,0xffffff,85) and isColor(1005,1854,0x260f04,85) then
-		tap(988,1836)
-	end
-	
+	mSleep(200)
+	multiColTap({{973,1821,0x3d2e23},{991,1837,0xffffff},{1005,1854,0x260f04}})
 	--3，处理灰色按钮
 end
 
 --目标face（抓图版）
 function getFace()
-	array = {"Lua", "Tutorial"}
 	for key,value in pairs(faces) do
 		print(key, value)
 		x, y = findImageInRegionFuzzy("guy_"..value..".png", 80, 467, 1069, 589, 1192, 0);
@@ -193,56 +180,6 @@ function getFace()
 	end
 	return -1
 end
---目标face (分析点版)
-function getAFace()
-	
-	good=0
-	sum=0
-    keepScreen(true)
-
-	for x=455,641,3 do
-		for y=1045,1245,3 do
-			cor = getColor(x, y); 
-			if cor~=0x403024 then
-				good=good+1
-				sum=sum+cor
-			end
-			
-			
-		end
-		
-	end
-	keepScreen(false)
-
-	if sum==20705041656 or sum==9543954167 or sum==9479655760 or 
-		sum ==9176557265 or sum==8999620849 or sum== 9577416402 or
-		sum==8724910727 or sum==20719460996 or sum==8838790209 then
-		sys_log((sum).." it is boy")
-	elseif sum==9232212575 or sum==9374098665 or sum==9350024043 or sum==9261678718 or
-		sum==8921764002 or sum==8685123308 or sum==9306178084 or sum==9331554048 or 
-		sum==9398802640 then
-		sys_log((sum).." it is girl")
-		
-	elseif sum==8457483222 or sum==8622148581 or sum==7619538596 or sum==8903992657 or
-		sum==7901983244 or sum==8268905466 or sum==8830403066 or sum==8181222562 then
-		sys_log((sum).." it is cike_boy")
-	elseif sum==5292358690 or sum==5282139339 or sum==5669592430 or sum==5086229205 
-		or sum==5414907061 or sum==5074727354 or sum==5244652514 then
-		sys_log((sum).." it is cike_girl")
-	elseif sum==10478294089 or sum==10538026874 or sum==11020328862 or sum==10842800473 or
-		sum==9879409779 or sum==10605099012 or sum==10297708794 then
-		sys_log((sum).." it is fox")
-	elseif sum==9264716635 or sum==9947053816 or sum==9476133693 or sum==8287978895 or sum==20702301819 or
-		sum==8436471063 or sum==9422591889 or sum==8953871852 or sum==10048558273 then
-		sys_log((sum).." it is blue")
-	elseif sum==10866869967 or sum==10632429174  or sum==11024825297 or sum==10693058206 or 
-		sum==10344331287 or sum==10792284583 or sum==10363435974 then
-		sys_log((sum).." it is rabbit")
-	else
-		sys_log((sum).." not found")
-	end
-end
-
 
 --测试不同石头的特征颜色
 function testAll(color)
@@ -256,6 +193,7 @@ function testAll(color)
 			sys_log((i*7+j+8)..":"..xx)
 		end
 	end
+	
 end
 
 --zone2:状态判断
@@ -265,7 +203,7 @@ end
 --日志
 function sys_log(msg)
 	nLog("["..os.date().."]  "..msg)
-	--print("["..os.date().."]  "..msg)
+	print("["..os.date().."]  "..msg)
 	--toast("["..os.date().."]  "..msg,1)
 end
 
@@ -286,7 +224,7 @@ function show_dialog()
 		views = {
 			{
 				["type"] = "RadioGroup",
-				["list"] = "4排自动合成,自动刷地牢(不可用),",
+				["list"] = "4排自动合成,测试用,",
 				["select"] = "1",
 			},
 		}
@@ -294,8 +232,6 @@ function show_dialog()
 	local MyJsonString = json.encode(MyTable);
 	return showUI(MyJsonString);
 end
-
-
 
 --真正开始做动作了
 function dowork(type,extra)
@@ -314,16 +250,14 @@ function dowork(type,extra)
 		end
 	end
 
-	if type=="?" then
-		--
+	if type=="1" then
+		testAll(0x245f58)
 	end
 	sys_log("挂机终止!")
 
 end
 
-
 --zone5:main
-
 function main()
 	--测试区
 --	while true do
@@ -334,15 +268,13 @@ function main()
 	--capScreen();
 	--makeAMerge("lv14.png");
 	--测试区
-	--sys_log("=================")
+	sys_log("=================")
 	--getAFace();
 
-	
-	
-	--testAll(0x245f58)
+	--
 	--弹出主程序面板
 	ret, worktype, extra= show_dialog();
-	--handleBadUI()
+	mSleep(2000)
 	if ret==1 then
 		--根据不同的动作，执行
 		--设定上次清理时间为当前时间
