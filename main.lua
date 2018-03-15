@@ -16,7 +16,7 @@ glLastRubyTime=0;
 rubyIntval=110;
 
 faces={"boy","girl","cike","fox","blue","rabbit"}
-
+weather={[0]="sunny","rainy","snowy"}
 
 --zone1:动作定义
 
@@ -87,13 +87,19 @@ function makeMergePoint()
 			--sys_log(i..","..j..":"..map[i][j])
 		end
 	end
+	wea=getWeather();
 	keepScreen(false)
-	--开始合并(TODO:天气控制)
+	--开始合并(如果是雨天,则全合;其他天气则只到月牙以下)
+	maxlvl=14
+	if wea=="rainy" then maxlvl=24 ;end
+	
+	
 	for i=1,31 do
 		for j=i+1,32 do
 			--如果两个格子的level一样，并且没有被处理过，则进行合并。
 			if map[math.floor((i-1)/8)+1][(i-1)%8+1]==map[math.floor((j-1)/8)+1][(j-1)%8+1] 
-			and map[math.floor((i-1)/8)+1][(i-1)%8+1]~=0  then
+			and map[math.floor((i-1)/8)+1][(i-1)%8+1]~=0  
+			and map[math.floor((i-1)/8)+1][(i-1)%8+1]<=maxlvl then
 				map[math.floor((i-1)/8)+1][(i-1)%8+1]=0
 				map[math.floor((j-1)/8)+1][(j-1)%8+1]=0
 				x1 = ((i-1) % 8) * 112 + 95
@@ -102,6 +108,7 @@ function makeMergePoint()
 				y2 = math.floor((j-1) / 8) * 112 + 1412;
 
 				moveTo(x1,y1,x2,y2,35);
+				mSleep(50);
 			end
 			
 		end
@@ -150,7 +157,7 @@ function getLvl(x,y)
 	x0,y0= findColorInRegionFuzzy(0x5a5a5a, 100, x1, y1, x2, y2); 
 	if x0>-1 then return 13;end
 	
-	-- 14级和16级的olor table一毛一样，只能trick
+	-- 14级和16级的color table一毛一样，只能trick
 	x0,y0= findColorInRegionFuzzy(0xc66518, 100, x1, y1, x2, y2); 
 	if x0>-1 then 
 		if 0xffffff==getColor(x1+46, y1+40) then
@@ -162,6 +169,13 @@ function getLvl(x,y)
 	return 0;
 end
 
+--获取天气
+function getWeather()
+	if (isColor( 671,  332, 0xfecc00, 85)) then return "sunny";end
+	if (isColor( 674,  317, 0xfefefe, 85)) then return "rainy";end	
+	return "unknow"
+end
+
 
 --处理界面异常
 function handleBadUI()
@@ -169,9 +183,14 @@ function handleBadUI()
 	--1,右上角叉叉
 	multiColTap({{901,351,0x6c4020},{920,358,0xd0d0d0},{929,380,0x50280c}})
 	--2,右下角加号
-	mSleep(350)
+	mSleep(250)
 	multiColTap({{973,1821,0x3d2e23},{991,1837,0xffffff},{1005,1854,0x260f04}})
 	--3，处理灰色按钮TODO
+	mSleep(100)
+	multiColTap({{  739, 1296, 0xa8a8a8},{  674, 1271, 0xa8a8a8},{  667, 1292, 0xa8a8a8},})
+	--4,处理误点出售
+	mSleep(100)
+	multiColTap({{  743, 1203, 0xa8a8a8},{  663, 1180, 0xa8a8a8},{  668, 1208, 0xa8a8a8},})
 end
 
 --测试不同石头的特征颜色
@@ -233,8 +252,8 @@ function dowork(type,extra)
 	glRunningFlag=true;
 
 	if type=="0" then
+		mSleep(1000)
 		while glRunningFlag do
-			sys_log("while")
 			getRuby();
 			handleAnti();
 			handleBadUI();
@@ -281,4 +300,5 @@ function main()
 
 end
 
+mSleep(500);
 main();
