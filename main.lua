@@ -116,7 +116,7 @@ function getLvl(x,y)
 	x2=x1+95
 	y2=y1+85
 	
-	--5 unique
+	-- 唯一能确定level的颜色，首先判断
 	x0,y0= findColorInRegionFuzzy(0xdd9500, 100, x1, y1, x2, y2); 
 	if x0>-1 then return 15;end
 	
@@ -150,7 +150,7 @@ function getLvl(x,y)
 	x0,y0= findColorInRegionFuzzy(0x5a5a5a, 100, x1, y1, x2, y2); 
 	if x0>-1 then return 13;end
 	
-	
+	-- 14级和16级的olor table一毛一样，只能trick
 	x0,y0= findColorInRegionFuzzy(0xc66518, 100, x1, y1, x2, y2); 
 	if x0>-1 then 
 		if 0xffffff==getColor(x1+46, y1+40) then
@@ -171,19 +171,7 @@ function handleBadUI()
 	--2,右下角加号
 	mSleep(350)
 	multiColTap({{973,1821,0x3d2e23},{991,1837,0xffffff},{1005,1854,0x260f04}})
-	--3，处理灰色按钮
-end
-
---目标face（抓图版）
-function getFace()
-	for key,value in pairs(faces) do
-		print(key, value)
-		x, y = findImageInRegionFuzzy("guy_"..value..".png", 80, 467, 1069, 589, 1192, 0);
-		if x~=-1 and y~=-1 then
-			return key
-		end
-	end
-	return -1
+	--3，处理灰色按钮TODO
 end
 
 --测试不同石头的特征颜色
@@ -201,45 +189,6 @@ function testAll(color)
 	end
 	keepScreen(false)
 end
-
-function testColorTable()
-	keepScreen(true)
-	x0=6*125+113
-	y0=0*172+1211
-	x1=x0+95
-	y1=y0+95
-	last=0
-	for i=x0,x1,3 do
-		for j=y0,y1,3 do
-			co=getColor(i, j)
-			if co~=last then
-				nLog(co)
-			end
-			last=co
-		end
-	end
-		nLog("======================")
-
-	x0=1*125+113
-	y0=1*172+1211
-	x1=x0+95
-	y1=y0+95
-	for i=x0,x1,3 do
-		for j=y0,y1,3 do
-			co=getColor(i, j)
-			if co~=last then
-				nLog(co)
-			end
-			last=co
-		end
-	end
-	keepScreen(false)
-end
-
-
-
-
-
 
 --zone2:状态判断
 --------------------------------------------------------------------------------------------
