@@ -77,7 +77,10 @@ end
 
 
 --做一次merge（找点版）
-function makeMergePoint()
+function makeMergePoint(extra)
+	--判断界面是否正常
+
+	
 	--拿到所有石头的level
 	keepScreen(true)
 	map={{}, {}, {}, {}} 
@@ -92,6 +95,9 @@ function makeMergePoint()
 	--开始合并(如果是雨天,则全合;其他天气则只到月牙以下)
 	maxlvl=14
 	if wea=="rainy" then maxlvl=24 ;end
+	
+	if extra=="1" then maxlvl=24;end
+	if extra=="2" then maxlvl=14;end
 	
 	
 	for i=1,31 do
@@ -187,10 +193,20 @@ function handleBadUI()
 	multiColTap({{973,1821,0x3d2e23},{991,1837,0xffffff},{1005,1854,0x260f04}})
 	--3，处理灰色按钮TODO
 	mSleep(100)
-	multiColTap({{  739, 1296, 0xa8a8a8},{  674, 1271, 0xa8a8a8},{  667, 1292, 0xa8a8a8},})
+	multiColTap({{  673, 1228, 0xa8a8a8},{  735, 1260, 0xa8a8a8},{  666, 1250, 0xa8a8a8},})
 	--4,处理误点出售
 	mSleep(100)
 	multiColTap({{  743, 1203, 0xa8a8a8},{  663, 1180, 0xa8a8a8},{  668, 1208, 0xa8a8a8},})
+	--5,处理中午11点的event
+	--6,处理掉线重连(也可以不处理)
+	--7,处理奖励框没有关闭的异常
+	mSleep(100)
+	if (isColor(  28, 1881, 0x816744, 100)) then
+		tap(40,592)
+	end
+	
+	
+	--TODO
 end
 
 --测试不同石头的特征颜色
@@ -223,28 +239,46 @@ end
 --zone4:主对话框
 
 --显示主对话框
-function show_dialog()
-	local sz = require("sz")
-	local json = sz.json
-	MyTable = {
-		["style"] = "default",
-		["width"] = 680,
-		["height"] = 880,
-		["orient"] = 1,
-		["config"] = "save_growstone_helper.dat",
-		["timer"] = 99,
-		["title"] = "Grow Stone辅助 - by Etrom",
-		views = {
-			{
-				["type"] = "RadioGroup",
-				["list"] = "4排自动合成,测试用,",
-				["select"] = "1",
-			},
+
+local sz = require("sz")
+local json = sz.json
+local w,h = getScreenSize();
+
+MyTable = {
+	["style"] = "default",
+	["width"] = w-100,
+	["height"] = h-800,
+	["orient"] = 1,
+	["config"] = "save_growstone_helper.dat",
+	["timer"] = 99,
+	["title"] = "Grow Stone辅助 - by Etrom",
+	views = {
+		{
+			["type"] = "Label",
+			["text"] = "功能选择",
+			["align"] = "center",
+			["color"] = "0,0,255",
+		},
+		{
+			["type"] = "RadioGroup",
+			["list"] = "4排自动合成,测试用,",
+			["select"] = "1",
+		},
+		{
+			["type"] = "Label",
+			["text"] = "合成选项",
+			["align"] = "center",
+			["color"] = "0,0,255",
+		},
+		{
+			["type"] = "RadioGroup",
+			["list"] = "雨天全合(其他合到月牙),一律全合,一律合到月牙",
+			["select"] = 1
 		}
 	}
-	local MyJsonString = json.encode(MyTable);
-	return showUI(MyJsonString);
-end
+}
+local MyJsonString = json.encode(MyTable);
+
 
 --真正开始做动作了
 function dowork(type,extra)
@@ -257,7 +291,7 @@ function dowork(type,extra)
 			getRuby();
 			handleAnti();
 			handleBadUI();
-			makeMergePoint();
+			makeMergePoint(extra);
 			mSleep(5000);
 		end
 	end
@@ -289,7 +323,7 @@ function main()
 
 	
 	--弹出主程序面板
-	ret, worktype, extra= show_dialog();
+	ret,worktype,extra=showUI(MyJsonString)
 
 	if ret==1 then
 		--根据不同的动作，执行
