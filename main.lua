@@ -225,6 +225,23 @@ function testAll(color)
 	keepScreen(false)
 end
 
+--换线
+function changeLine(flr)
+	-- body
+	mSleep(100)
+	tap(805,324)
+	mSleep(200)
+	tap(241,388)
+	mSleep(300)
+	times=math.random(0,10)
+	for i=1,times do
+		moveTo(513,1680,513,564,120)
+	end
+	mSleep(200)
+	tap(534,math.random(564,1680))
+end
+
+
 --zone2:状态判断
 --------------------------------------------------------------------------------------------
 --zone3:系统杂项
@@ -261,7 +278,7 @@ MyTable = {
 		},
 		{
 			["type"] = "RadioGroup",
-			["list"] = "4排自动合成,测试用,",
+			["list"] = "4排自动合成,刷针模式,",
 			["select"] = "1",
 		},
 		{
@@ -297,7 +314,22 @@ function dowork(type,extra)
 	end
 
 	if type=="1" then
-		sys_log("do nothing")
+		sys_log("start to farm")
+		mSleep(1000)
+		--设定初始楼层
+		math.randomseed(os.time())
+		start_floor=math.random(1,200)
+		while glRunningFlag do
+			--打怪
+			mSleep(40*1000)
+			--换线
+			changeLine(start_floor)
+			
+			start_floor=(start_floor)%200+1
+		end
+		
+		
+		
 		--testAll(0x6abe30)
 	end
 	sys_log("挂机终止!")
@@ -320,11 +352,11 @@ function main()
 
 	--testAll(0x245f58)
 	--testColorTable()
-
+	--changeLine(3)
 	
 	--弹出主程序面板
 	ret,worktype,extra=showUI(MyJsonString)
-
+	
 	if ret==1 then
 		--根据不同的动作，执行
 		--设定上次清理时间为当前时间
